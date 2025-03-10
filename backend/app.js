@@ -10,7 +10,7 @@ import userRoutes from "./src/user/routes/user.routes.js";
 import cookieParser from "cookie-parser";
 import orderRoutes from "./src/order/routes/order.routes.js";
 
-const configPath = path.resolve("backend", "config", "uat.env");
+const configPath = path.resolve("config", "uat.env");
 dotenv.config({ path: configPath });
 
 const app = express();
