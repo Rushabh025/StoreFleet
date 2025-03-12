@@ -30,7 +30,18 @@ export const addNewProduct = async (req, res, next) => {
 };
 
 export const getAllProducts = async (req, res, next) => {
+  
   // Implement the functionality for search, filter and pagination this function.
+  try {
+    const fetchedProducts = await getAllProductsRepo(req.params.page , 50);
+    if (fetchedProducts) {
+      res.status(200).json({ success: true, fetchedProducts });
+    } else {
+      return next(new ErrorHandler(400, "Products not found!"));
+    }
+  } catch (error) {
+    return next(new ErrorHandler(400, error));
+  }
 };
 
 export const updateProduct = async (req, res, next) => {
@@ -108,7 +119,7 @@ export const rateProduct = async (req, res, next) => {
     await product.save({ validateBeforeSave: false });
     res
       .status(201)
-      .json({ success: true, msg: "thx for rating the product", product });
+      .json({ success: true, msg: "thanks for rating the product", product });
   } catch (error) {
     return next(new ErrorHandler(500, error));
   }
@@ -134,7 +145,7 @@ export const deleteReview = async (req, res, next) => {
       return next(
         new ErrorHandler(
           400,
-          "pls provide productId and reviewId as query params"
+          "Please provide productId and reviewId as query params"
         )
       );
     }

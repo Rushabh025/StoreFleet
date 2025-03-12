@@ -4,8 +4,13 @@ export const addNewProductRepo = async (product) => {
   return await new ProductModel(product).save();
 };
 
-export const getAllProductsRepo = async () => {
-  return await ProductModel.find({});
+export const getAllProductsRepo = async (page , pageSize) => {
+  
+  const skip = (page - 1) * pageSize;
+  
+  return await ProductModel.find({}).skip(skip)
+  .limit(pageSize)
+  .exec();
 };
 
 export const updateProductRepo = async (_id, updatedData) => {

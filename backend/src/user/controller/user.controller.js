@@ -26,10 +26,6 @@ export const createNewUser = async (req, res, next) => {
     await sendWelcomeEmail(newUser);
   } catch (err) {
     //  handle error for duplicate email
-    if (err.code === 11000) {
-      // MongoDB duplicate key error code
-      return next(new ErrorHandler(400, "Email already exists. Please use a different email."));
-    }
     return next(new ErrorHandler(400, err));
   }
 };
@@ -67,11 +63,61 @@ export const logoutUser = async (req, res, next) => {
 };
 
 export const forgetPassword = async (req, res, next) => {
-  // Implement feature for forget password
+  const { email } = req.body;
+
+  try {
+    const resetToken = await user.getResetPasswordToken(email);
+
+    const mailOptions = {
+      from: process.env.STORFLEET_SMPT_MAIL,
+      to: email,
+      subject: "Password Reset",
+      text: `Your password reset token is: ${resetToken}`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Password reset token sent to your email.",
+      });
+  } catch (error) {
+    return next(new ErrorHandler(500 , error))
+  }
+
 };
 
 export const resetUserPassword = async (req, res, next) => {
-  // Implement feature for reset password
+  const { password, confirmPassword } = req.body;
+
+  try {
+    const user = await user.findOne({ email : req.user.email });
+
+    if (!user || user.resetPasswordExpire < Date.now()) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid or expired reset token." });
+    }
+
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+    if (hashedToken !== user.resetPasswordToken) {
+      return next(new ErrorHandler(400, "Invalid or expired reset token."));
+    }
+
+    // Reset password and remove token fields
+    user.password = newPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+
+    res
+      .status(200)
+      .json({ success: true, message: "Password reset successfully." });
+  } catch (error) {
+    return next(new ErrorHandler(500, error));
+  }
 };
 
 export const getUserDetails = async (req, res, next) => {
@@ -166,4 +212,18 @@ export const deleteUser = async (req, res, next) => {
 
 export const updateUserProfileAndRole = async (req, res, next) => {
   // Write your code here for updating the roles of other users by admin
+  const { name, email, role } = req.body;
+  try {
+    const updatedUserDetails = await updateUserRoleAndProfileRepo(
+      req.user._id,
+      {
+        name,
+        email,
+        role,
+      }
+    );
+    res.status(201).json({ success: true, updatedUserDetails });
+  } catch (error) {
+    return next(new ErrorHandler(400, error));
+  }
 };
