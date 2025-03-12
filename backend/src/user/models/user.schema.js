@@ -45,6 +45,10 @@ const userSchema = new mongoose.Schema({
 
 userSchema.pre("save", async function (next) {
   //  hash user password before saving using bcrypt
+  const saltRounds = 10;
+  // console.log("User password schema",this.password);
+  this.password = await bcrypt.hash(this.password, saltRounds);
+  next();
 });
 
 // JWT Token
