@@ -7,15 +7,15 @@ import crypto from "crypto";
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, "user name is requires"],
-    maxLength: [30, "user name can't exceed 30 characters"],
-    minLength: [2, "name should have atleast 2 charcters"],
+    required: [true, "User name is requires"],
+    maxLength: [30, "User name can't exceed 30 characters"],
+    minLength: [2, "Name should have atleast 2 charcters"],
   },
   email: {
     type: String,
-    required: [true, "user email is requires"],
+    required: [true, "User email is requires"],
     unique: true,
-    validate: [validator.isEmail, "pls enter a valid email"],
+    validate: [validator.isEmail, "Please enter a valid email"],
   },
   password: {
     type: String,
@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
     url: {
       type: String,
       required: true,
-      default: "this is dummy avatar url",
+      default: "This is dummy avatar url",
     },
   },
   role: {
@@ -44,6 +44,7 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.pre("save", async function (next) {
+  if (!this.isModified('password')) return next();
   //  hash user password before saving using bcrypt
   const saltRounds = 10;
   // console.log("User password schema",this.password);

@@ -15,6 +15,7 @@ import {
   updateUserRoleAndProfileRepo,
 } from "../models/user.repository.js";
 import crypto from "crypto";
+import UserModel from "../models/user.schema.js";
 
 export const createNewUser = async (req, res, next) => {
   const { name, email, password } = req.body;
@@ -68,10 +69,59 @@ export const logoutUser = async (req, res, next) => {
 
 export const forgetPassword = async (req, res, next) => {
   // Implement feature for forget password
+  try {
+    const email = req.body.email;
+    const user = await UserModel.findOne({email});
+    if (!user) {
+      return next(new ErrorHandler(401, "Invalid email or Email not registered!"));
+    }
+    
+    // Generate reset token that expires in 10 mins
+    const resetToken = await user.getResetPasswordToken();
+
+    await user.save();
+
+    // mail the token to user email
+    await sendPasswordResetEmail(user, resetToken);
+  
+    res.status(200).json({ success: true, msg: "Token sent on user registered mail" });
+
+  } catch (error) {
+    // console.log(error)
+    return next(new ErrorHandler(400, error));
+  }
 };
 
 export const resetUserPassword = async (req, res, next) => {
   // Implement feature for reset password
+  try {
+    const resetToken = req.params.token;
+    const password = req.body.password;
+    const confirmPassword = req.body.confirmPassword;
+    if(!resetToken){
+      return next(new ErrorHandler(401, "Provide the token"));
+    }
+    if(password !== confirmPassword){
+      return next(new ErrorHandler(401, "Passwords does not match"));
+    }
+
+    const decodedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+    const checkToken = await findUserForPasswordResetRepo(decodedToken);
+    if(!checkToken){
+      return next(new ErrorHandler(401, "Token expired or Invalid token"));
+    }else{
+      
+      const user = await UserModel.findOne({resetPasswordToken : decodedToken});
+      
+      user.password = confirmPassword;
+      await user.save();
+      await sendToken(user, res, 200);
+    }
+
+  } catch (error) {
+    // console.log(error)
+    return next(new ErrorHandler(400, error));
+  }
 };
 
 export const getUserDetails = async (req, res, next) => {
