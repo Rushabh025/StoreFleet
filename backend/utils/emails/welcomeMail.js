@@ -1,13 +1,9 @@
 // Import the necessary modules here
 import nodemailer from "nodemailer";
-import path from "path";
-import dotenv from "dotenv";
-const configPath = path.resolve("config", "uat.env");
-dotenv.config({ path: configPath });
 
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: process.env.SMPT_SERVICE,
   auth: {
     user: process.env.STOREFLEET_SMTP_MAIL,
     pass: process.env.STOREFLEET_SMTP_MAIL_PASSWORD,

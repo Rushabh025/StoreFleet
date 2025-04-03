@@ -46,6 +46,7 @@ router
   .delete(auth, authByUserRole("admin"), deleteUser);
 
 // Admin PUT Routes
+router.route("/admin/update/:id").put(auth, authByUserRole("admin"), updateUserProfileAndRole)
 // Implement route for updating role of other users
 // Write your code here
 
