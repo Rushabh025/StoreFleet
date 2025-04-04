@@ -161,7 +161,7 @@ export const rateProduct = async (req, res, next) => {
     await product.save({ validateBeforeSave: false });
     res
       .status(201)
-      .json({ success: true, msg: "thx for rating the product", product });
+      .json({ success: true, msg: "Thank you for rating the product", product });
   } catch (error) {
     return next(new ErrorHandler(500, error));
   }
@@ -180,9 +180,13 @@ export const getAllReviewsOfAProduct = async (req, res, next) => {
 };
 
 export const deleteReview = async (req, res, next) => {
-  // Insert the essential code into this controller wherever necessary to resolve issues related to removing reviews and updating product ratings.
+  /* Insert the essential code into this controller wherever necessary to resolve issues 
+  related to removing reviews and updating product ratings. */
+
   try {
     const { productId, reviewId } = req.query;
+    const userData = req.user;
+    
     if (!productId || !reviewId) {
       return next(
         new ErrorHandler(
@@ -191,11 +195,13 @@ export const deleteReview = async (req, res, next) => {
         )
       );
     }
+    
     const product = await findProductRepo(productId);
     if (!product) {
       return next(new ErrorHandler(400, "Product not found!"));
     }
     const reviews = product.reviews;
+    // console.log(reviews);
 
     const isReviewExistIndex = reviews.findIndex((rev) => {
       return rev._id.toString() === reviewId.toString();
@@ -205,7 +211,19 @@ export const deleteReview = async (req, res, next) => {
     }
 
     const reviewToBeDeleted = reviews[isReviewExistIndex];
+
+    // Check if the logged-in user is the one who wrote the review
+    if (reviewToBeDeleted.user.toString() !== userData._id.toString()) {
+      return next(new ErrorHandler(403, "You are not authorised to delete this review"));
+    }
+
+    // Remove the review
     reviews.splice(isReviewExistIndex, 1);
+
+    // Recalculate average rating and number of reviews
+    product.rating =
+      reviews.reduce((sum, rev) => sum + rev.rating, 0) / (reviews.length || 1);
+    product.numOfReviews = reviews.length;
 
     await product.save({ validateBeforeSave: false });
     res.status(200).json({
