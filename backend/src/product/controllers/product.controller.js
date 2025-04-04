@@ -31,6 +31,59 @@ export const addNewProduct = async (req, res, next) => {
 
 export const getAllProducts = async (req, res, next) => {
   // Implement the functionality for search, filter and pagination this function.
+  try {
+    const filter = {};
+    const page = parseInt(req.query.page, 10) || 1;
+    const pagesize = parseInt(req.query.pagesize, 10) || 5;
+
+    // check for keyword in name
+    if(req.query.keyword){
+      const keyword = req.query.keyword.trim();
+      filter.name = { $regex: new RegExp(keyword, 'i') };
+    }
+
+    // check for category
+    if(req.query.category){
+      filter.category = req.query.category;
+    }
+   
+    // Loop through each query key
+    for (const key in req.query) {
+      const value = req.query[key];
+      // Skip 'keyword' since we already handled it
+      if (key === 'keyword') continue;
+
+      // Handle range filters like price, rating, etc.
+      if (typeof value === 'object') {
+        filter[key] = {};
+        for (const operator in value) {
+          filter[key][`$${operator}`] = Number(value[operator]);
+        }
+      }
+    }
+    
+    const products = await ProductModel.aggregate([
+      {
+        $match : filter
+      },
+      {
+        $facet: {
+          metadata : [{$count : "totalCount"}],
+          data : [{$skip : (page - 1) * pagesize}, {$limit : pagesize}]
+        }
+      }
+    ])
+
+    if (products) {
+      res.status(201).json({ success: true, products });
+    } else {
+      return next(new ErrorHandler(400, "some error occured!"));
+    }
+
+  } catch (error) {
+    // console.log(error);
+    return next(new ErrorHandler(400, error));
+  }
 };
 
 export const updateProduct = async (req, res, next) => {
