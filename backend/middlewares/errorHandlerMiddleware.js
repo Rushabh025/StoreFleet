@@ -10,6 +10,6 @@ export const errorHandlerMiddleware = (err, req, res, next) => {
 export const handleUncaughtError = () => {
   process.on("uncaughtException", (err) => {
     console.log(`Error: ${err}`);
-    console.log("shutting down server bcz of uncaughtException");
+    console.log("Shutting down server because of uncaughtException");
   });
 };

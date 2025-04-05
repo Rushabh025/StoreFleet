@@ -5,21 +5,21 @@ const producSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "product name is required"],
+      required: [true, "Product name is required"],
       trim: true,
     },
     description: {
       type: String,
-      required: [true, "product description name is required"],
+      required: [true, "Product description name is required"],
       minLength: [
         10,
-        "product description should be atleat 10 characters long",
+        "Product description should be atleat 10 characters long",
       ],
     },
     price: {
       type: Number,
-      required: [true, "product price  is required"],
-      maxLength: [8, "price can be of maximum 8 digits"],
+      required: [true, "Product price  is required"],
+      maxLength: [8, "Price can be of maximum 8 digits"],
     },
     rating: {
       type: Number,
@@ -39,7 +39,7 @@ const producSchema = new mongoose.Schema(
     ],
     category: {
       type: String,
-      required: [true, "product category is required"],
+      required: [true, "Product category is required"],
       enum: [
         "Mobile",
         "Electronics",
@@ -66,8 +66,8 @@ const producSchema = new mongoose.Schema(
     },
     stock: {
       type: Number,
-      required: [true, "product stock is mandatory"],
-      maxLength: [5, "stock can be maximum 5 digits"],
+      required: [true, "Product stock is mandatory"],
+      maxLength: [5, "Stock can be maximum 5 digits"],
       default: 1,
     },
     reviews: [

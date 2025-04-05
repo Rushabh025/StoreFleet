@@ -18,8 +18,8 @@ import crypto from "crypto";
 import UserModel from "../models/user.schema.js";
 
 export const createNewUser = async (req, res, next) => {
-  const { name, email, password } = req.body;
   try {
+
     const newUser = await createNewUserRepo(req.body);
     await sendToken(newUser, res, 200);
 
@@ -44,7 +44,7 @@ export const userLogin = async (req, res, next) => {
     const user = await findUserRepo({ email }, true);
     if (!user) {
       return next(
-        new ErrorHandler(401, "user not found! register yourself now!!")
+        new ErrorHandler(401, "User not found! register yourself now!!")
       );
     }
     const passwordMatch = await user.comparePassword(password);
@@ -64,7 +64,7 @@ export const logoutUser = async (req, res, next) => {
       expires: new Date(Date.now()),
       httpOnly: true,
     })
-    .json({ success: true, msg: "logout successful" });
+    .json({ success: true, msg: "Logout successful" });
 };
 
 export const forgetPassword = async (req, res, next) => {
@@ -137,7 +137,7 @@ export const updatePassword = async (req, res, next) => {
   const { currentPassword, newPassword, confirmPassword } = req.body;
   try {
     if (!currentPassword) {
-      return next(new ErrorHandler(401, "pls enter current password"));
+      return next(new ErrorHandler(401, "Please enter current password"));
     }
 
     const user = await findUserRepo({ _id: req.user._id }, true);
@@ -148,7 +148,7 @@ export const updatePassword = async (req, res, next) => {
 
     if (!newPassword || newPassword !== confirmPassword) {
       return next(
-        new ErrorHandler(401, "mismatch new password and confirm password!")
+        new ErrorHandler(401, "Mismatch new password and confirm password!")
       );
     }
 
@@ -189,7 +189,7 @@ export const getUserDetailsForAdmin = async (req, res, next) => {
     if (!userDetails) {
       return res
         .status(400)
-        .json({ success: false, msg: "no user found with provided id" });
+        .json({ success: false, msg: "No user found with provided id" });
     }
     res.status(200).json({ success: true, userDetails });
   } catch (error) {
@@ -203,12 +203,12 @@ export const deleteUser = async (req, res, next) => {
     if (!deletedUser) {
       return res
         .status(400)
-        .json({ success: false, msg: "no user found with provided id" });
+        .json({ success: false, msg: "Nno user found with provided id" });
     }
 
     res
       .status(200)
-      .json({ success: true, msg: "user deleted successfully", deletedUser });
+      .json({ success: true, msg: "User deleted successfully", deletedUser });
   } catch (error) {
     return next(new ErrorHandler(400, error));
   }

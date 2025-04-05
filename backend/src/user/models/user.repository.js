@@ -1,6 +1,4 @@
 import UserModel from "./user.schema.js";
-import mongoose from "mongoose";
-import { ObjectId } from "mongoose";
 
 export const createNewUserRepo = async (user) => {
   return await new UserModel(user).save();

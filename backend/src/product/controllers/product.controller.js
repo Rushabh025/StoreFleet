@@ -22,7 +22,7 @@ export const addNewProduct = async (req, res, next) => {
     if (product) {
       res.status(201).json({ success: true, product });
     } else {
-      return next(new ErrorHandler(400, "some error occured!"));
+      return next(new ErrorHandler(400, "Some error occured!"));
     }
   } catch (error) {
     return next(new ErrorHandler(400, error));
@@ -77,7 +77,7 @@ export const getAllProducts = async (req, res, next) => {
     if (products) {
       res.status(201).json({ success: true, products });
     } else {
-      return next(new ErrorHandler(400, "some error occured!"));
+      return next(new ErrorHandler(400, "Some error occured!"));
     }
 
   } catch (error) {
@@ -138,7 +138,7 @@ export const rateProduct = async (req, res, next) => {
       comment,
     };
     if (!rating) {
-      return next(new ErrorHandler(400, "rating can't be empty"));
+      return next(new ErrorHandler(400, "Rating can't be empty"));
     }
     const product = await findProductRepo(productId);
     if (!product) {
@@ -191,7 +191,7 @@ export const deleteReview = async (req, res, next) => {
       return next(
         new ErrorHandler(
           400,
-          "pls provide productId and reviewId as query params"
+          "Please provide productId and reviewId as query params"
         )
       );
     }
@@ -207,7 +207,7 @@ export const deleteReview = async (req, res, next) => {
       return rev._id.toString() === reviewId.toString();
     });
     if (isReviewExistIndex < 0) {
-      return next(new ErrorHandler(400, "review doesn't exist"));
+      return next(new ErrorHandler(400, "Review doesn't exist"));
     }
 
     const reviewToBeDeleted = reviews[isReviewExistIndex];
@@ -228,7 +228,7 @@ export const deleteReview = async (req, res, next) => {
     await product.save({ validateBeforeSave: false });
     res.status(200).json({
       success: true,
-      msg: "review deleted successfully",
+      msg: "Review deleted successfully",
       deletedReview: reviewToBeDeleted,
       product,
     });

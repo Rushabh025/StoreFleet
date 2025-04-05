@@ -13,6 +13,8 @@ import orderRoutes from "./src/order/routes/order.routes.js";
 const configPath = path.resolve("backend","config", "uat.env");
 dotenv.config({ path: configPath });
 
+handleUncaughtError();
+
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
